@@ -1,0 +1,62 @@
+# Action-Conditioned V-JEPA for Robotics
+# World model training for goal-conditioned planning
+
+model:
+  encoder:
+    name: vjepa2_vitl
+    checkpoint: ./data/checkpoints/vjepa2-vitg/
+    frozen: true
+
+  ac_predictor:
+    name: action_conditioned_transformer
+    embed_dim: 1024
+    depth: 8
+    num_heads: 16
+    action_dim: 7  # 7-DoF robot arm (Franka)
+    prediction_horizon: 16  # Predict 16 steps ahead
+    use_block_causal_attention: true  # Autoregressive feature prediction
+
+planning:
+  method: mpc  # Model Predictive Control
+  horizon: 16
+  num_samples: 512  # CEM samples
+  num_elites: 64
+  num_iterations: 5
+  goal_type: image  # Goal specified as target image
+
+training:
+  epochs: 100
+  batch_size: 64
+  optimizer:
+    name: adamw
+    lr: 3.0e-4
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    warmup_epochs: 10
+  mixed_precision: true
+  gradient_clip: 1.0
+
+data:
+  dataset: droid_subset  # Or custom robot data
+  root: ./data/raw/robot_data/
+  num_frames: 32
+  frame_stride: 1
+  action_format: joint_positions  # 7-DoF joint positions
+  num_workers: 4
+
+simulation:
+  env: two_rooms  # Start with eb_jepa Two Rooms, then scale
+  # env: franka_pick_place  # MuJoCo Franka environment
+  render: true
+  max_episode_steps: 200
+
+logging:
+  log_every: 10
+  eval_every: 20
+  save_every: 20
+  output_dir: ./experiments/robotics_ac_vjepa
+  wandb:
+    enabled: true
+    project: vljepa-research
+    tags: [robotics, action-conditioned, planning]

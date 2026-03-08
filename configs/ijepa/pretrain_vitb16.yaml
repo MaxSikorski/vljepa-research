@@ -1,0 +1,66 @@
+# I-JEPA ViT-Base/16 Config
+# For cloud training on 1-4x A100 GPUs
+# Dataset: ImageNet-1K or ImageNet-100 subset
+
+model:
+  encoder:
+    name: vit_base
+    patch_size: 16
+    embed_dim: 768
+    depth: 12
+    num_heads: 12
+    mlp_ratio: 4.0
+    img_size: 224
+  predictor:
+    embed_dim: 768
+    predictor_embed_dim: 384
+    depth: 12
+    num_heads: 12
+
+masking:
+  num_targets: 4
+  min_target_scale: 0.15
+  max_target_scale: 0.2
+  min_context_scale: 0.85
+  max_context_scale: 1.0
+  aspect_ratio: [0.75, 1.5]
+
+training:
+  epochs: 300
+  batch_size: 2048  # effective batch size across GPUs
+  batch_size_per_gpu: 512
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: cosine
+    warmup_epochs: 40
+    min_lr: 1.0e-6
+  ema_momentum: 0.996
+  ema_momentum_end: 1.0
+  mixed_precision: true
+  gradient_clip: 1.0
+  gradient_checkpointing: false
+
+data:
+  dataset: imagenet
+  root: ./data/raw/imagenet
+  num_workers: 8
+  pin_memory: true
+
+distributed:
+  strategy: ddp
+  num_gpus: 4
+  backend: nccl
+
+logging:
+  log_every: 50
+  eval_every: 50
+  save_every: 50
+  output_dir: ./experiments/ijepa_vitb16_imagenet
+  wandb:
+    enabled: true
+    project: vljepa-research
+    tags: [ijepa, vit-base, imagenet]

@@ -1,0 +1,66 @@
+# VL-JEPA Smoke Test Config
+# For local debugging — minimal model sizes
+
+model:
+  x_encoder:
+    name: vit_tiny  # Use tiny for smoke testing; production uses V-JEPA 2 ViT-L
+    patch_size: 16
+    embed_dim: 192
+    depth: 12
+    num_heads: 3
+    img_size: 224
+    frozen: true
+  predictor:
+    name: transformer
+    embed_dim: 192  # Matches x_encoder for smoke test
+    depth: 4  # Production uses 8 layers from Llama-3.2-1B
+    num_heads: 3
+    mlp_ratio: 4.0
+    shared_embedding_dim: 192  # Projection space dim (production: 1536)
+    causal_attention: false  # Key VL-JEPA design: disable causal mask
+  y_encoder:
+    name: text_encoder_tiny  # Production uses EmbeddingGemma-300M
+    embed_dim: 192
+    vocab_size: 32000
+    depth: 4
+    num_heads: 3
+    lr_multiplier: 0.05  # Y-encoder trains at 0.05x the predictor LR
+
+loss:
+  name: bidirectional_infonce
+  temperature: 0.07
+  learnable_temperature: false
+
+training:
+  epochs: 20
+  batch_size: 32
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: constant  # Stage 1: constant LR
+    warmup_steps: 100
+  mixed_precision: false
+  gradient_clip: 1.0
+  gradient_checkpointing: true
+
+data:
+  train:
+    - name: dummy_image_text
+      weight: 1.0
+      root: ./data/raw
+  eval:
+    - name: dummy_retrieval
+      root: ./data/evaluation
+
+logging:
+  log_every: 5
+  eval_every: 10
+  save_every: 10
+  output_dir: ./experiments/vljepa_tiny_smoke
+  wandb:
+    enabled: false
+    project: vljepa-research
+    tags: [vljepa, tiny, smoke-test]

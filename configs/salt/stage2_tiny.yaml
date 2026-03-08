@@ -1,0 +1,55 @@
+# SALT Stage 2: Frozen-Teacher JEPA Student Training
+# Reference: SALT (Apple, ICLR 2025) — https://arxiv.org/abs/2509.24317
+#
+# Smoke test config: ViT-Tiny on CIFAR-10
+# Freezes Stage 1 teacher, trains student + predictor with L1 latent loss
+# NO EMA — teacher is completely static from Stage 1
+#
+# Key innovation: decoupling teacher and student training eliminates EMA
+# while achieving better downstream accuracy with fewer FLOPs
+
+model:
+  teacher_checkpoint: ./experiments/salt_stage1_tiny/encoder.pt
+  encoder:
+    name: vit_tiny
+    patch_size: 8
+    embed_dim: 192
+    depth: 12
+    num_heads: 3
+    mlp_ratio: 4.0
+    img_size: 32
+  predictor:
+    embed_dim: 192
+    predictor_embed_dim: 96
+    depth: 2
+    num_heads: 3
+
+masking:
+  num_targets: 4
+  min_target_scale: 0.15
+  max_target_scale: 0.2
+  min_context_scale: 0.85
+  max_context_scale: 1.0
+  aspect_ratio: [0.75, 1.5]
+
+training:
+  epochs: 2
+  batch_size: 64
+  loss: l1  # SALT uses L1 loss (not MSE or smooth_l1)
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.04
+    betas: [0.9, 0.95]
+    min_lr: 1.0e-6
+  gradient_clip: 1.0
+
+data:
+  dataset: cifar10
+  root: /tmp/cifar10_data
+  num_workers: 2
+  pin_memory: true
+
+logging:
+  log_every: 100
+  output_dir: ./experiments/salt_stage2_tiny

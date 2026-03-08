@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install minimal dependencies
+COPY pyproject.toml .
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir -e ".[deployment]"
+
+COPY src/ src/
+COPY deployments/api/ deployments/api/
+
+EXPOSE 8000
+
+CMD ["uvicorn", "deployments.api.server:app", "--host", "0.0.0.0", "--port", "8000"]

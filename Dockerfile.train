@@ -1,0 +1,36 @@
+# GPU Training Container for I-JEPA
+# Usage:
+#   docker build -f Dockerfile.train -t vljepa-train .
+#
+# Run on cloud GPU (Vast.ai, RunPod, Lambda):
+#   docker run --gpus all --rm \
+#     -v $(pwd)/output:/output \
+#     vljepa-train \
+#     python -m src.ijepa.train --config configs/ijepa/cifar10_a100.yaml
+#
+# CIFAR-10 is auto-downloaded on first run.
+
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+
+WORKDIR /app
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git && rm -rf /var/lib/apt/lists/*
+
+# Python deps (core only — skip GUI/notebook/deployment packages)
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml scipy scikit-learn tqdm rich \
+    torchvision wandb
+
+# Copy project
+COPY . .
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Create output directory
+RUN mkdir -p /output /data
+
+# Default: run I-JEPA training on CIFAR-10
+CMD ["python", "-m", "src.ijepa.train", "--config", "configs/ijepa/cifar10_a100.yaml"]

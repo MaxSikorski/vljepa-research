@@ -1,0 +1,102 @@
+# VL-JEPA Supervised Fine-Tuning (SFT) Config
+# Stage 2: Fine-tuning with cosine annealing on task-specific data
+
+model:
+  # Same architecture as pretrain.yaml
+  x_encoder:
+    name: vjepa2_vitl
+    checkpoint: ./data/checkpoints/vjepa2-vitg/
+    frozen: true
+
+  predictor:
+    name: llama3_last8
+    checkpoint: null  # Loaded from Stage 1 pretrained checkpoint
+    resume_from: ./experiments/vljepa_pretrain/checkpoints/best.pt
+    shared_embedding_dim: 1536
+    causal_attention: false
+    trainable: true
+
+  y_encoder:
+    name: embedding_gemma_300m
+    checkpoint: null  # Loaded from Stage 1
+    resume_from: ./experiments/vljepa_pretrain/checkpoints/best.pt
+    lr_multiplier: 0.05
+    trainable: true
+
+  # Optional lightweight text decoder for generative tasks
+  decoder:
+    name: transformer_decoder
+    embed_dim: 512
+    depth: 4
+    num_heads: 8
+    vocab_size: 32000
+    max_seq_len: 128
+    trainable: true
+
+loss:
+  name: bidirectional_infonce
+  temperature: 0.07
+  # Add cross-entropy loss for decoder if enabled
+  decoder_loss_weight: 0.1
+
+training:
+  stage: sft
+  epochs: 20
+  batch_size: 1024
+  batch_size_per_gpu: 128
+  optimizer:
+    name: adamw
+    lr: 5.0e-5  # Lower LR for fine-tuning
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: cosine  # Cosine annealing for SFT stage
+    warmup_steps: 500
+    min_lr: 1.0e-6
+  mixed_precision: bf16
+  gradient_clip: 1.0
+  gradient_checkpointing: true
+
+data:
+  train:
+    - name: gqa
+      type: vqa
+      root: ./data/raw/gqa/
+      weight: 0.3
+    - name: tallyqa
+      type: vqa
+      root: ./data/raw/tallyqa/
+      weight: 0.2
+    - name: kinetics400
+      type: classification
+      root: ./data/raw/kinetics400/
+      weight: 0.3
+    - name: msrvtt
+      type: retrieval
+      root: ./data/raw/msrvtt/
+      weight: 0.2
+  eval:
+    - name: gqa_val
+      type: vqa
+      root: ./data/evaluation/gqa/
+    - name: msrvtt_val
+      type: retrieval
+      root: ./data/evaluation/msrvtt/
+    - name: kinetics400_val
+      type: classification
+      root: ./data/raw/kinetics400/
+
+distributed:
+  strategy: fsdp
+  num_gpus: 8
+  backend: nccl
+
+logging:
+  log_every: 50
+  eval_every: 1000
+  save_every: 1000
+  output_dir: ./experiments/vljepa_sft
+  wandb:
+    enabled: true
+    project: vljepa-research
+    tags: [vljepa, sft, stage2]

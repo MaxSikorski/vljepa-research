@@ -1,0 +1,59 @@
+# I-JEPA on CIFAR-10 — Single A100 GPU
+# First real training run. Validates the full pipeline.
+# Expected: ~30 min training, loss should decrease steadily.
+
+model:
+  encoder:
+    name: vit_tiny
+    patch_size: 8
+    embed_dim: 192
+    depth: 12
+    num_heads: 3
+    mlp_ratio: 4.0
+    img_size: 32
+  predictor:
+    embed_dim: 192
+    predictor_embed_dim: 96
+    depth: 6
+    num_heads: 3
+
+masking:
+  num_targets: 4
+  min_target_scale: 0.15
+  max_target_scale: 0.2
+  min_context_scale: 0.85
+  max_context_scale: 1.0
+  aspect_ratio: [0.75, 1.5]
+
+training:
+  epochs: 100
+  batch_size: 256
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: cosine
+    warmup_epochs: 10
+    min_lr: 1.0e-6
+  ema_momentum: 0.996
+  ema_momentum_end: 1.0
+  mixed_precision: bf16
+  gradient_clip: 1.0
+
+data:
+  dataset: cifar10
+  root: /data/cifar10
+  num_workers: 4
+  pin_memory: true
+
+logging:
+  log_every: 10
+  eval_every: 25
+  save_every: 25
+  output_dir: /output/ijepa_cifar10
+  wandb:
+    enabled: false
+    project: vljepa-research
+    tags: [ijepa, tiny, cifar10, a100]

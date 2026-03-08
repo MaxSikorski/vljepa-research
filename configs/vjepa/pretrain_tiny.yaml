@@ -1,0 +1,65 @@
+# V-JEPA Smoke Test Config
+# For local debugging — tiny model on short video clips
+
+model:
+  encoder:
+    name: vit_tiny
+    patch_size: [2, 8, 8]  # [temporal, height, width]
+    embed_dim: 192
+    depth: 12
+    num_heads: 3
+    mlp_ratio: 4.0
+    tubelet_size: 2
+    num_frames: 16
+    img_size: 64
+  predictor:
+    embed_dim: 192
+    predictor_embed_dim: 96
+    depth: 6
+    num_heads: 3
+
+masking:
+  strategy: tube  # tube masking for video
+  num_targets: 8
+  min_target_scale: 0.15
+  max_target_scale: 0.25
+  min_context_scale: 0.85
+  max_context_scale: 1.0
+  temporal_extent: 0.5  # mask spans 50% of temporal extent
+
+training:
+  epochs: 30
+  batch_size: 32
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: cosine
+    warmup_epochs: 5
+    min_lr: 1.0e-6
+  ema_momentum: 0.996
+  ema_momentum_end: 1.0
+  mixed_precision: false
+  gradient_clip: 1.0
+  gradient_checkpointing: true  # video needs more memory
+
+data:
+  dataset: kinetics_subset
+  root: ./data/raw
+  num_frames: 16
+  frame_stride: 4
+  crop_size: 64
+  num_workers: 4
+  pin_memory: true
+
+logging:
+  log_every: 10
+  eval_every: 10
+  save_every: 10
+  output_dir: ./experiments/vjepa_tiny_smoke
+  wandb:
+    enabled: false
+    project: vljepa-research
+    tags: [vjepa, tiny, smoke-test]

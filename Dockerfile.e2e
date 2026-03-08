@@ -1,0 +1,25 @@
+# Dockerfile.e2e — End-to-end smoke test: train I-JEPA on CIFAR-10
+# Usage: docker build -t vljepa-e2e -f Dockerfile.e2e .
+#        docker run --rm vljepa-e2e
+#
+# Downloads CIFAR-10 (~170MB), trains for 2 epochs, saves checkpoint,
+# loads into fresh model, runs k-NN + linear probe evaluation.
+# Takes ~3-5 min on CPU.
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# PyTorch CPU
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Project dependencies
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml numpy scipy scikit-learn tqdm rich
+
+COPY . .
+ENV PYTHONPATH=/app
+
+CMD ["python", "scripts/e2e_smoke_test.py"]

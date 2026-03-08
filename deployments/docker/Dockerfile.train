@@ -1,0 +1,23 @@
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+
+# System deps
+RUN apt-get update && apt-get install -y \
+    python3.11 python3.11-venv python3-pip git wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Create workspace
+WORKDIR /workspace
+
+# Install Python dependencies
+COPY pyproject.toml .
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+RUN pip install --no-cache-dir -e ".[dev,distributed]"
+
+# Copy source code
+COPY . .
+
+# Default command
+CMD ["python", "-m", "src.vljepa.train", "--config", "configs/vljepa/pretrain.yaml"]

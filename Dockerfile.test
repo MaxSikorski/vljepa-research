@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install PyTorch CPU-only (much smaller than GPU build)
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Install project dependencies needed for tests (skip heavy/optional ones)
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml numpy scipy scikit-learn tqdm rich \
+    pytest pytest-cov
+
+# Copy project
+COPY . .
+
+# Add project root to Python path (avoids editable install issues)
+ENV PYTHONPATH=/app
+
+CMD ["pytest", "tests/", "-v", "--tb=short"]

@@ -1,0 +1,89 @@
+# VL-JEPA Full Pretraining Config
+# For cloud training on 4-8x A100 80GB
+# Stage 1: Pretraining with constant LR on CC3M + WebVid-2M
+
+model:
+  x_encoder:
+    name: vjepa2_vitl
+    checkpoint: ./data/checkpoints/vjepa2-vitg/  # Pretrained V-JEPA 2
+    embed_dim: 1024
+    frozen: true  # X-encoder is always frozen
+
+  predictor:
+    name: llama3_last8
+    checkpoint: ./data/checkpoints/llama-3.2-1b/
+    num_layers: 8  # Last 8 transformer layers from Llama-3.2-1B
+    embed_dim: 2048  # Llama-3.2-1B hidden dim
+    num_heads: 32
+    shared_embedding_dim: 1536  # Projection to shared space
+    causal_attention: false
+    trainable: true
+
+  y_encoder:
+    name: embedding_gemma_300m
+    checkpoint: ./data/checkpoints/gemma-2b/  # Or specific embedding model
+    embed_dim: 2048
+    shared_embedding_dim: 1536
+    lr_multiplier: 0.05
+    trainable: true
+
+loss:
+  name: bidirectional_infonce
+  temperature: 0.07
+  learnable_temperature: false
+
+training:
+  # Stage 1: Pretraining
+  stage: pretrain
+  epochs: 50
+  batch_size: 2048  # Effective batch size across all GPUs
+  batch_size_per_gpu: 256
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: constant  # Constant LR for pretraining stage
+    warmup_steps: 2000
+  mixed_precision: bf16  # BF16 for A100s
+  gradient_clip: 1.0
+  gradient_checkpointing: true
+  compile: true  # torch.compile for speedup
+
+data:
+  train:
+    - name: cc3m
+      type: image_text
+      root: ./data/raw/cc3m/
+      weight: 0.5
+    - name: webvid2m
+      type: video_text
+      root: ./data/raw/webvid2m/
+      weight: 0.5
+      num_frames: 16
+      frame_stride: 4
+  eval:
+    - name: msrvtt
+      type: retrieval
+      root: ./data/evaluation/msrvtt/
+    - name: kinetics400
+      type: classification
+      root: ./data/raw/kinetics400/
+
+distributed:
+  strategy: fsdp  # Fully Sharded Data Parallel
+  num_gpus: 8
+  backend: nccl
+  sharding_strategy: full_shard
+  mixed_precision_policy: bf16
+
+logging:
+  log_every: 100
+  eval_every: 2500
+  save_every: 2500
+  output_dir: ./experiments/vljepa_pretrain
+  wandb:
+    enabled: true
+    project: vljepa-research
+    tags: [vljepa, pretrain, cc3m, webvid2m]

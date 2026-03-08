@@ -1,0 +1,23 @@
+# Dockerfile.salt — SALT two-stage training: MAE teacher → frozen-teacher JEPA
+# Implements Apple's SALT (ICLR 2025) on CIFAR-10 and compares with I-JEPA
+#
+# Usage: docker build -t vljepa-salt -f Dockerfile.salt .
+#        docker run --rm vljepa-salt
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# PyTorch CPU
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Project dependencies
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml numpy scipy scikit-learn tqdm rich
+
+COPY . .
+ENV PYTHONPATH=/app
+
+CMD ["python", "scripts/salt_e2e_smoke_test.py"]

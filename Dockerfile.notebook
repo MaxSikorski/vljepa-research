@@ -1,0 +1,43 @@
+# Dockerfile.notebook — Run Jupyter notebooks non-interactively for validation
+# Usage: docker build -t vljepa-notebooks -f Dockerfile.notebook .
+#        docker run --rm vljepa-notebooks
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# PyTorch CPU
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Project dependencies + notebook execution
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml numpy scipy scikit-learn tqdm rich \
+    jupyter nbconvert matplotlib
+
+# Matplotlib non-interactive backend (no display needed)
+ENV MPLBACKEND=Agg
+ENV PYTHONPATH=/app
+
+COPY . .
+
+# Execute both notebooks, converting to HTML as a side effect
+# --ExecutePreprocessor.timeout=120 gives each cell up to 2 minutes
+CMD ["sh", "-c", "\
+    echo '=== Running 01_ijepa_walkthrough.ipynb ===' && \
+    jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=120 \
+        --output-dir=/tmp \
+        notebooks/01_ijepa_walkthrough.ipynb && \
+    echo '=== PASSED: 01_ijepa_walkthrough ===' && \
+    echo '' && \
+    echo '=== Running 03_vljepa_inference_demo.ipynb ===' && \
+    jupyter nbconvert --to html --execute \
+        --ExecutePreprocessor.timeout=120 \
+        --output-dir=/tmp \
+        notebooks/03_vljepa_inference_demo.ipynb && \
+    echo '=== PASSED: 03_vljepa_inference_demo ===' && \
+    echo '' && \
+    echo 'All notebooks executed successfully!' \
+"]

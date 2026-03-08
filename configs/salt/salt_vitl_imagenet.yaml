@@ -1,0 +1,78 @@
+# SALT Full-Scale: ViT-L on ImageNet
+# Reference: SALT (Apple, ICLR 2025) — https://arxiv.org/abs/2509.24317
+#
+# Production config matching the paper's ViT-L experiments
+# Stage 1: ~40K steps (17% of compute) — MAE pixel reconstruction
+# Stage 2: ~200K steps (83% of compute) — frozen-teacher JEPA training
+#
+# Results from paper (ViT-L):
+#   K400: 83.8% (vs V-JEPA 2 82.0%) +1.8%
+#   SSv2: 75.2% (vs V-JEPA 2 68.5%) +6.7%
+#   IN-1K: 76.1% linear probe
+#
+# Requires multi-GPU setup (8x A100/H100 recommended)
+
+stage1:
+  model:
+    encoder:
+      name: vit_large
+      patch_size: 16
+      embed_dim: 1024
+      depth: 24
+      num_heads: 16
+      mlp_ratio: 4.0
+      img_size: 224
+    decoder:
+      encoder_embed_dim: 1024
+      decoder_embed_dim: 512
+      decoder_depth: 4
+      decoder_num_heads: 16
+      patch_size: 16
+      in_channels: 3
+  training:
+    epochs: 100  # ~40K steps
+    batch_size: 2048  # distributed across GPUs
+    norm_pix: true
+    optimizer:
+      lr: 1.5e-4
+      weight_decay: 0.04
+      betas: [0.9, 0.95]
+    gradient_clip: 1.0
+
+stage2:
+  model:
+    encoder:
+      name: vit_large
+      patch_size: 16
+      embed_dim: 1024
+      depth: 24
+      num_heads: 16
+      mlp_ratio: 4.0
+      img_size: 224
+    predictor:
+      embed_dim: 1024
+      predictor_embed_dim: 384
+      depth: 12
+      num_heads: 12
+  training:
+    epochs: 300  # ~200K steps
+    batch_size: 2048
+    loss: l1
+    optimizer:
+      lr: 1.5e-4
+      weight_decay: 0.04
+      betas: [0.9, 0.95]
+    gradient_clip: 1.0
+
+masking:
+  num_targets: 4
+  min_target_scale: 0.15
+  max_target_scale: 0.2
+  min_context_scale: 0.85
+  max_context_scale: 1.0
+
+data:
+  dataset: imagenet
+  root: /data/imagenet
+  num_workers: 10
+  pin_memory: true

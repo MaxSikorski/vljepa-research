@@ -1,0 +1,59 @@
+# I-JEPA Smoke Test Config
+# For local debugging on M4 Mac or single GPU
+# Uses ViT-Tiny on CIFAR-10 — trains in minutes
+
+model:
+  encoder:
+    name: vit_tiny
+    patch_size: 8
+    embed_dim: 192
+    depth: 12
+    num_heads: 3
+    mlp_ratio: 4.0
+    img_size: 32
+  predictor:
+    embed_dim: 192
+    predictor_embed_dim: 96
+    depth: 6
+    num_heads: 3
+
+masking:
+  num_targets: 4
+  min_target_scale: 0.15
+  max_target_scale: 0.2
+  min_context_scale: 0.85
+  max_context_scale: 1.0
+  aspect_ratio: [0.75, 1.5]
+
+training:
+  epochs: 50
+  batch_size: 128
+  optimizer:
+    name: adamw
+    lr: 1.5e-4
+    weight_decay: 0.05
+    betas: [0.9, 0.95]
+  scheduler:
+    name: cosine
+    warmup_epochs: 5
+    min_lr: 1.0e-6
+  ema_momentum: 0.996
+  ema_momentum_end: 1.0
+  mixed_precision: false  # MPS has limited fp16 support
+  gradient_clip: 1.0
+
+data:
+  dataset: cifar10
+  root: ./data/raw
+  num_workers: 4
+  pin_memory: true
+
+logging:
+  log_every: 10
+  eval_every: 10
+  save_every: 10
+  output_dir: ./experiments/ijepa_tiny_smoke
+  wandb:
+    enabled: false
+    project: vljepa-research
+    tags: [ijepa, tiny, smoke-test]

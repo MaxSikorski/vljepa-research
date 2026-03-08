@@ -1,0 +1,27 @@
+# Dockerfile.demo — Run inference demo: features, k-NN, VL-JEPA pipeline
+# Usage: docker build -t vljepa-demo -f Dockerfile.demo .
+#        docker run --rm vljepa-demo
+#
+# Quick-trains a tiny I-JEPA (~1 min), then demonstrates:
+# - Feature extraction and similarity
+# - k-NN classification at different k values
+# - Per-class accuracy breakdown
+# - VL-JEPA inference pipeline (embedding + retrieval)
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# PyTorch CPU
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Project dependencies
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml numpy scipy scikit-learn tqdm rich
+
+COPY . .
+ENV PYTHONPATH=/app
+
+CMD ["python", "scripts/demo_inference.py"]
