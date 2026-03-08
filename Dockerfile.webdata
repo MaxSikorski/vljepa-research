@@ -1,0 +1,24 @@
+# Dockerfile.webdata — Generate all precomputed data for the SALT showcase website
+# Runs SALT training, exports ONNX model, generates sample images + embeddings
+#
+# Usage:
+#   docker build -t vljepa-webdata -f Dockerfile.webdata .
+#   docker run --rm -v $(pwd)/docs:/app/web_output vljepa-webdata
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# PyTorch CPU
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Project dependencies + ONNX
+RUN pip install --no-cache-dir \
+    einops timm transformers pyyaml numpy scipy scikit-learn tqdm rich onnx onnxscript
+
+COPY . .
+ENV PYTHONPATH=/app
+
+CMD ["python", "scripts/generate_web_data.py"]

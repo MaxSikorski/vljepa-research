@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SALT for Manufacturing — Vision AI on the Edge</title>
+  <meta name="description" content="Deploy SALT vision AI directly on your factory floor. No cloud. No latency. Real-time quality inspection, predictive maintenance, and robotic vision for small & medium manufacturers.">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ---- Manufacturing Page Styles ---- */
+    .mfg-hero {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-bottom: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mfg-hero .container { position: relative; z-index: 1; }
+
+    .mfg-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 16px;
+    }
+
+    .mfg-hero p {
+      margin: 0 auto 32px;
+      font-size: 1.2rem;
+      max-width: 640px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      background: var(--badge-bg);
+      text-decoration: none;
+    }
+
+    /* Impact stats */
+    .impact-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 48px 0 0;
+    }
+
+    .impact-stat {
+      text-align: center;
+      padding: 32px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .impact-stat .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .impact-stat .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    @media (max-width: 734px) {
+      .impact-stats { grid-template-columns: 1fr; gap: 16px; }
+    }
+
+    /* Why SALT section */
+    .benefit-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .benefit-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .benefit-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--badge-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .benefit-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .benefit-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .benefit-card p {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 734px) {
+      .benefit-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Use Cases */
+    .usecase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .usecase-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .usecase-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .usecase-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--badge-bg);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .usecase-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+
+    .usecase-card p {
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .usecase-card .usecase-example {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    @media (max-width: 734px) {
+      .usecase-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Edge architecture */
+    .edge-diagram {
+      max-width: 700px;
+      margin: 32px auto;
+      display: block;
+    }
+
+    .edge-diagram text {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      fill: var(--text);
+    }
+
+    .edge-callout {
+      text-align: center;
+      margin-top: 24px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-size: 15px;
+      font-weight: 500;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Roadmap */
+    .roadmap {
+      margin-top: 32px;
+      position: relative;
+    }
+
+    .roadmap::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .roadmap-phase {
+      position: relative;
+      padding-left: 56px;
+      margin-bottom: 32px;
+    }
+
+    .roadmap-phase:last-child { margin-bottom: 0; }
+
+    .phase-dot {
+      position: absolute;
+      left: 11px;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+    }
+
+    .phase-label {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .roadmap-phase h3 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+
+    .roadmap-phase p {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .phase-snippet {
+      margin-top: 10px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: var(--terminal-bg);
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 13px;
+      color: var(--terminal-text);
+      overflow-x: auto;
+    }
+
+    /* ROI Calculator */
+    .roi-calculator {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--card-shadow);
+      margin-top: 32px;
+    }
+
+    .roi-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .roi-field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .roi-field input, .roi-field select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-secondary);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .roi-field input:focus, .roi-field select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .roi-results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .roi-result-card {
+      text-align: center;
+      padding: 20px 12px;
+      border-radius: 12px;
+      background: var(--bg-secondary);
+    }
+
+    .roi-result-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .roi-result-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    @media (max-width: 734px) {
+      .roi-form { grid-template-columns: 1fr; }
+      .roi-results { grid-template-columns: 1fr; }
+    }
+
+    /* CTA section */
+    .cta-section {
+      text-align: center;
+      padding: 80px 0;
+      background: var(--bg-secondary);
+    }
+
+    .cta-section h2 { margin-bottom: 16px; }
+
+    .cta-section p {
+      margin: 0 auto 32px;
+      font-size: 1.15rem;
+      max-width: 560px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Nav back link */
+    .back-link {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    /* Case study highlight */
+    .case-study {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--card-shadow);
+      margin-top: 32px;
+    }
+
+    .case-study-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .case-study-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(52,199,89,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .case-study-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--success);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .case-study-list {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 0;
+    }
+
+    .case-study-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .case-study-list li:last-child { border-bottom: none; }
+
+    .case-study-list li::before {
+      content: '→';
+      color: var(--accent);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back to Showcase -->
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Research
+  </a>
+
+  <!-- Top Controls: Nav + Theme Toggle -->
+  <div class="top-controls">
+    <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+  <div class="nav-backdrop" id="navBackdrop"></div>
+  <nav class="nav-menu" id="navMenu">
+    <a href="#why">Why SALT</a>
+    <a href="#usecases">Use Cases</a>
+    <a href="#architecture">How It Works</a>
+    <a href="#casestudy">Our Lab</a>
+    <a href="#roi">ROI Calculator</a>
+    <div class="nav-divider"></div>
+    <a href="index.html">Research Showcase</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- ============================================================ -->
+  <!-- HERO -->
+  <!-- ============================================================ -->
+  <section class="mfg-hero">
+    <div class="container">
+      <div class="hero-badge">Edge AI for Manufacturing</div>
+      <h1>Vision AI That Runs<br>on Your Factory Floor</h1>
+      <p>Built on Apple's SALT research (ICLR 2025). Deploy real-time visual inspection, predictive maintenance, and robotic vision — no cloud, no latency, no recurring API costs.</p>
+
+      <div class="hero-buttons">
+        <a href="#roi" class="cta-btn">
+          Calculate Your ROI
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3v10M8 13l4-4M8 13L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="#usecases" class="btn-secondary">See Use Cases</a>
+      </div>
+
+      <div class="impact-stats fade-in">
+        <div class="impact-stat">
+          <div class="stat-value">30%</div>
+          <div class="stat-label">Fewer compute resources<br>vs. traditional approaches</div>
+        </div>
+        <div class="impact-stat">
+          <div class="stat-value">&lt;100ms</div>
+          <div class="stat-label">Real-time inference<br>on edge hardware</div>
+        </div>
+        <div class="impact-stat">
+          <div class="stat-value">$35</div>
+          <div class="stat-label">Minimum hardware cost<br>(Raspberry Pi)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- WHY SALT FOR MANUFACTURING -->
+  <!-- ============================================================ -->
+  <section id="why">
+    <div class="container">
+      <h2 class="fade-in">Why This Changes Everything</h2>
+      <p class="section-subtitle fade-in">SALT eliminates the most complex part of vision AI training — making it practical for businesses that don't have a machine learning team.</p>
+
+      <div class="benefit-grid">
+        <div class="benefit-card fade-in">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h3>Runs on Cheap Hardware</h3>
+          <p>No EMA means 30% fewer FLOPs. The same model runs on a $35 Raspberry Pi, a Jetson Nano, or an Apple Mac Mini. No expensive GPU servers.</p>
+        </div>
+        <div class="benefit-card fade-in">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Zero Cloud Dependency</h3>
+          <p>Every frame processed locally. Works in air-gapped facilities, classified environments, or simply where you refuse to send production data to someone else's server.</p>
+        </div>
+        <div class="benefit-card fade-in">
+          <div class="benefit-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <h3>Deploy in Weeks, Not Months</h3>
+          <p>Two-stage training decouples teacher from student. Mount a camera, collect images, fine-tune, and deploy to an edge device — with a clear 4-week roadmap.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- USE CASES -->
+  <!-- ============================================================ -->
+  <section id="usecases" style="background:var(--bg-secondary)">
+    <div class="container">
+      <h2 class="fade-in">How Manufacturers Are Using This</h2>
+      <p class="section-subtitle fade-in">Four immediate applications — from print farms to CNC shops to robotics labs.</p>
+
+      <div class="usecase-grid">
+        <div class="usecase-card fade-in">
+          <div class="usecase-number">1</div>
+          <h3>Visual Quality Inspection</h3>
+          <p>Camera watches every print layer, CNC pass, or weld seam. The SALT encoder detects defects in real-time — catching warping, layer shifts, stringing, or dimensional errors before they waste hours of production time and material.</p>
+          <div class="usecase-example">A 3D print farm owner catches a nozzle clog on layer 12 of a 400-layer print. Saves 6 hours of print time and $80 in material — per incident.</div>
+        </div>
+
+        <div class="usecase-card fade-in">
+          <div class="usecase-number">2</div>
+          <h3>Robotic Vision</h3>
+          <p>Self-hosted Vision Transformer running on-device. No cloud round-trip means real-time obstacle avoidance, object manipulation, and spatial awareness. Critical for autonomous robots operating in dynamic manufacturing environments.</p>
+          <div class="usecase-example">A humanoid robot with embedded SALT vision navigates a warehouse floor, identifies parts by sight, and adapts to changing layouts — all processed locally in under 100ms.</div>
+        </div>
+
+        <div class="usecase-card fade-in">
+          <div class="usecase-number">3</div>
+          <h3>Predictive Maintenance</h3>
+          <p>Monitor equipment vibration patterns, tool wear, belt tension, and thermal signatures via camera. SALT embeddings cluster normal vs. anomalous operating states and flag issues before they cause failures or safety incidents.</p>
+          <div class="usecase-example">Bearing wear detected 3 days before failure on a CNC spindle. Planned replacement during scheduled downtime saves $12,000 in emergency repair costs.</div>
+        </div>
+
+        <div class="usecase-card fade-in">
+          <div class="usecase-number">4</div>
+          <h3>Inventory &amp; Part Recognition</h3>
+          <p>Camera scans a parts bin and identifies components by visual embedding — no barcode, no RFID, no manual entry. Works for custom-machined parts, 3D-printed components, and mixed inventory with no existing SKU system.</p>
+          <div class="usecase-example">Receiving dock scans incoming parts against visual database. Auto-matches to open work orders and updates inventory in 2 seconds per part.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- EDGE ARCHITECTURE -->
+  <!-- ============================================================ -->
+  <section id="architecture">
+    <div class="container">
+      <h2 class="fade-in">How It Works on the Edge</h2>
+      <p class="section-subtitle fade-in">The same model that runs in your browser runs on factory-floor hardware. No internet required.</p>
+
+      <div class="arch-stage fade-in">
+        <svg class="edge-diagram" viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg">
+          <!-- Camera -->
+          <rect class="node-rect" x="10" y="50" width="120" height="60" rx="8"/>
+          <text x="70" y="75" text-anchor="middle" font-size="13" font-weight="600">Camera</text>
+          <text x="70" y="92" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">USB / IP / CSI</text>
+
+          <!-- Arrow 1 -->
+          <line class="flow-line" x1="130" y1="80" x2="170" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <polygon points="168,76 176,80 168,84" fill="var(--border)"/>
+
+          <!-- Edge Device -->
+          <rect class="node-rect" x="176" y="30" width="200" height="100" rx="8" style="fill:var(--badge-bg); stroke:var(--accent)"/>
+          <text x="276" y="56" text-anchor="middle" font-size="12" font-weight="600" fill="var(--badge-text)">Edge Device</text>
+          <text x="276" y="74" text-anchor="middle" font-size="11" fill="var(--text-secondary)">SALT ViT (ONNX Runtime)</text>
+          <text x="276" y="92" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Raspberry Pi / Jetson / Mac Mini</text>
+          <text x="276" y="118" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">&lt;100ms inference</text>
+
+          <!-- Arrow 2 -->
+          <line class="flow-line" x1="376" y1="80" x2="416" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <polygon points="414,76 422,80 414,84" fill="var(--border)"/>
+
+          <!-- Decision -->
+          <rect class="node-rect" x="422" y="50" width="120" height="60" rx="8" style="fill:rgba(52,199,89,0.1); stroke:var(--success)"/>
+          <text x="482" y="75" text-anchor="middle" font-size="13" font-weight="600" fill="var(--success)">Decision</text>
+          <text x="482" y="92" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Pass / Fail / Alert</text>
+
+          <!-- Arrow 3 -->
+          <line class="flow-line" x1="542" y1="80" x2="576" y2="80" stroke="var(--border)" stroke-width="2"/>
+          <polygon points="574,76 582,80 574,84" fill="var(--border)"/>
+
+          <!-- Action -->
+          <rect class="node-rect" x="582" y="50" width="110" height="60" rx="8"/>
+          <text x="637" y="75" text-anchor="middle" font-size="13" font-weight="600">Action</text>
+          <text x="637" y="92" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Stop / Alert / Log</text>
+
+          <!-- No Cloud label -->
+          <text x="276" y="152" text-anchor="middle" font-size="11" font-weight="500" fill="var(--warning)">No internet connection required</text>
+        </svg>
+      </div>
+
+      <div class="edge-callout fade-in">
+        The exact same ONNX model that powers the browser demo on our research page runs natively on a $35 Raspberry Pi at production speed.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CASE STUDY -->
+  <!-- ============================================================ -->
+  <section id="casestudy" style="background:var(--bg-secondary)">
+    <div class="container">
+      <h2 class="fade-in">Real-World Implementation</h2>
+      <p class="section-subtitle fade-in">How one manufacturing lab is deploying SALT across a 20+ machine operation.</p>
+
+      <div class="case-study fade-in">
+        <div class="case-study-header">
+          <div class="case-study-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:2px">Sikorski Manufacturing &amp; AI Research Lab</h3>
+            <span style="font-size:14px; color:var(--text-tertiary)">3D Print Farm · Humanoid Robotics · B2B Manufacturing</span>
+          </div>
+        </div>
+
+        <p style="margin-bottom:0">A fully integrated operation running dozens of 3D printers (desktop-scale to industrial 1,000mm+ build volume), designing and constructing humanoid robots with locally-hosted vision AI inference, voice processing, speech-to-text, and 50+ degrees of freedom — all powered by edge-deployed models.</p>
+
+        <ul class="case-study-list">
+          <li>SALT visual inspection monitors every printer in the farm for layer adhesion failures, warping, and stringing</li>
+          <li>Embedded ViT runs on-device inside humanoid robots for real-time spatial awareness and object recognition</li>
+          <li>No cloud dependency — all AI processing stays local for speed, privacy, and reliability</li>
+          <li>Predictive maintenance cameras flag nozzle wear and belt tension across the entire fleet</li>
+          <li>Custom part recognition replaces manual inventory tracking for 3D-printed components</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- IMPLEMENTATION ROADMAP -->
+  <!-- ============================================================ -->
+  <section id="roadmap">
+    <div class="container">
+      <h2 class="fade-in">4-Week Implementation Roadmap</h2>
+      <p class="section-subtitle fade-in">From camera mount to production deployment. Here's exactly how you do it.</p>
+
+      <div class="roadmap fade-in">
+        <div class="roadmap-phase">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Week 1</span>
+          <h3>Capture Training Data</h3>
+          <p>Mount cameras on your machines. Collect 500-2,000 images of normal operation and known defect types. No labeling needed for the initial self-supervised stage.</p>
+          <div class="phase-snippet">
+# Mount USB camera, capture frames every 30s<br>
+ffmpeg -f v4l2 -i /dev/video0 -vf fps=1/30 frames/img_%04d.jpg
+          </div>
+        </div>
+
+        <div class="roadmap-phase">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Weeks 2-3</span>
+          <h3>Train SALT on Your Data</h3>
+          <p>Run the two-stage SALT pipeline. Stage 1 learns visual features from your images (no labels). Stage 2 distills that knowledge into an efficient student model. Fine-tune with a small labeled set for your specific defect classes.</p>
+          <div class="phase-snippet">
+# Stage 1: Self-supervised MAE teacher<br>
+python train_salt.py --stage 1 --data ./frames --epochs 50<br><br>
+# Stage 2: Student distillation<br>
+python train_salt.py --stage 2 --teacher ./teacher.pt --epochs 30
+          </div>
+        </div>
+
+        <div class="roadmap-phase">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Week 4</span>
+          <h3>Deploy to Edge</h3>
+          <p>Export the student model to ONNX and deploy via ONNX Runtime on your edge hardware. Connect to your existing alerting system — Slack, email, PLC, or dashboard.</p>
+          <div class="phase-snippet">
+# Export to ONNX (runs anywhere)<br>
+python export_onnx.py --model student.pt --output model.onnx<br><br>
+# Run on Raspberry Pi / Jetson / Mac Mini<br>
+python edge_inference.py --model model.onnx --camera 0
+          </div>
+        </div>
+
+        <div class="roadmap-phase">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Ongoing</span>
+          <h3>Continuous Improvement</h3>
+          <p>As your system catches new defect types, those frames automatically feed back into the training pipeline. Push model updates to your entire fleet of edge devices with a single command.</p>
+          <div class="phase-snippet">
+# Retrain with new data, push to fleet<br>
+python retrain.py --new-data ./flagged_frames<br>
+./deploy.sh --fleet all --model model_v2.onnx
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ROI CALCULATOR -->
+  <!-- ============================================================ -->
+  <section id="roi" style="background:var(--bg-secondary)">
+    <div class="container">
+      <h2 class="fade-in">Calculate Your ROI</h2>
+      <p class="section-subtitle fade-in">See what automated visual inspection could save your operation every month.</p>
+
+      <div class="roi-calculator fade-in">
+        <div class="roi-form">
+          <div class="roi-field">
+            <label for="numMachines">Number of Machines</label>
+            <input type="number" id="numMachines" value="10" min="1" max="500">
+          </div>
+          <div class="roi-field">
+            <label for="avgJobHours">Average Job Duration (hours)</label>
+            <input type="number" id="avgJobHours" value="6" min="0.5" max="200" step="0.5">
+          </div>
+          <div class="roi-field">
+            <label for="defectRate">Current Defect/Failure Rate (%)</label>
+            <input type="number" id="defectRate" value="8" min="1" max="50" step="0.5">
+          </div>
+          <div class="roi-field">
+            <label for="materialCost">Average Material Cost per Job ($)</label>
+            <input type="number" id="materialCost" value="25" min="1" max="10000" step="1">
+          </div>
+          <div class="roi-field">
+            <label for="jobsPerMonth">Jobs per Machine per Month</label>
+            <input type="number" id="jobsPerMonth" value="30" min="1" max="500">
+          </div>
+          <div class="roi-field">
+            <label for="hourlyRate">Fully Loaded Hourly Rate ($)</label>
+            <input type="number" id="hourlyRate" value="45" min="10" max="500">
+          </div>
+        </div>
+
+        <div class="roi-results">
+          <div class="roi-result-card">
+            <div class="roi-result-value" id="roiHoursSaved">—</div>
+            <div class="roi-result-label">Hours Saved / Month</div>
+          </div>
+          <div class="roi-result-card">
+            <div class="roi-result-value" id="roiMaterialSaved">—</div>
+            <div class="roi-result-label">Material Saved / Month</div>
+          </div>
+          <div class="roi-result-card">
+            <div class="roi-result-value" id="roiTotalSaved">—</div>
+            <div class="roi-result-label">Total Savings / Month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CTA -->
+  <!-- ============================================================ -->
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="fade-in">Ready to Deploy Vision AI<br>in Your Facility?</h2>
+      <p class="fade-in">Whether you run 2 machines or 200, SALT scales to your operation. Let's talk about what edge AI can do for your manufacturing workflow.</p>
+
+      <div class="cta-buttons fade-in">
+        <a href="mailto:maxwell.sikorski@gmail.com?subject=SALT%20Manufacturing%20Inquiry" class="cta-btn">
+          Get in Touch
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4l6 4 6-4M2 4h12v8H2V4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </a>
+        <a href="index.html" class="btn-secondary">See the Research</a>
+        <a href="https://github.com/MaxSikorski/vljepa-research" target="_blank" class="btn-secondary">
+          View on GitHub
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M6 3h7v7M13 3L6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONTACT -->
+  <!-- ============================================================ -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <h2 class="fade-in">Ready to Deploy?</h2>
+      <p style="color:var(--text-secondary); max-width:500px; margin:0 auto 40px">
+        Tell me about your operation and I'll show you exactly how edge AI fits in. No sales pitch — just a straight conversation.
+      </p>
+      <form class="contact-form" action="https://formspree.io/f/xwvrproj" method="POST">
+        <input type="hidden" name="_subject" value="Manufacturing Inquiry — SALT Showcase">
+        <div class="form-group">
+          <label for="mfg-name">Name</label>
+          <input type="text" id="mfg-name" name="name" required placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label for="mfg-email">Email</label>
+          <input type="email" id="mfg-email" name="email" required placeholder="you@company.com">
+        </div>
+        <div class="form-group">
+          <label for="mfg-message">Message</label>
+          <textarea id="mfg-message" name="message" required placeholder="What do you manufacture? What's your biggest quality or inspection challenge?"></textarea>
+        </div>
+        <button type="submit">Send Message</button>
+        <p class="form-note">Goes directly to my inbox. I typically respond within 24 hours.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- FOOTER -->
+  <!-- ============================================================ -->
+  <footer>
+    <div class="container">
+      <p style="color:var(--text-secondary)">Built by Sikorski AI Research Lab · March 2026</p>
+      <div class="footer-links">
+        <a href="index.html">Research Showcase</a>
+        <a href="https://github.com/MaxSikorski/vljepa-research" target="_blank">GitHub</a>
+        <a href="https://arxiv.org/abs/2509.24317" target="_blank">SALT Paper (ICLR 2025)</a>
+        <a href="mailto:maxwell.sikorski@gmail.com">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // ---- Theme Toggle (standalone for this page) ----
+    (function() {
+      'use strict';
+      const toggle = document.getElementById('themeToggle');
+      const html = document.documentElement;
+      const saved = localStorage.getItem('theme');
+      if (saved) {
+        html.setAttribute('data-theme', saved);
+      } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        html.setAttribute('data-theme', 'light');
+      }
+      toggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+
+      // ---- Scroll Animations ----
+      const fadeElements = document.querySelectorAll('.fade-in');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      fadeElements.forEach((el) => observer.observe(el));
+
+      // ---- Smooth Scroll ----
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(anchor.getAttribute('href'));
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      // ---- Nav Menu Toggle ----
+      const navToggle = document.getElementById('navToggle');
+      const navMenu = document.getElementById('navMenu');
+      const navBackdrop = document.getElementById('navBackdrop');
+
+      function closeNav() {
+        navToggle.classList.remove('active');
+        navMenu.classList.remove('open');
+        navBackdrop.classList.remove('active');
+      }
+
+      if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = navMenu.classList.contains('open');
+          if (isOpen) { closeNav(); }
+          else {
+            navToggle.classList.add('active');
+            navMenu.classList.add('open');
+            navBackdrop.classList.add('active');
+          }
+        });
+        if (navBackdrop) navBackdrop.addEventListener('click', closeNav);
+        navMenu.querySelectorAll('a').forEach((link) => {
+          link.addEventListener('click', closeNav);
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && navMenu.classList.contains('open')) closeNav();
+        });
+      }
+
+      // ---- Contact Form Handler ----
+      document.querySelectorAll('.contact-form').forEach((form) => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalText = submitBtn.textContent;
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+          const prevError = form.querySelector('.contact-error');
+          if (prevError) prevError.remove();
+          try {
+            const resp = await fetch(form.action, {
+              method: 'POST',
+              body: new FormData(form),
+              headers: { 'Accept': 'application/json' },
+            });
+            if (resp.ok) {
+              const wrapper = form.parentElement;
+              form.style.display = 'none';
+              const success = document.createElement('div');
+              success.className = 'contact-success';
+              success.innerHTML = '<div class="success-icon"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div><h3>Message sent.</h3><p>I\'ll get back to you within 24 hours.</p>';
+              wrapper.appendChild(success);
+            } else { throw new Error('Server returned ' + resp.status); }
+          } catch (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            const errorEl = document.createElement('div');
+            errorEl.className = 'contact-error';
+            errorEl.textContent = 'Something went wrong. Please try again or email maxwell.sikorski@gmail.com directly.';
+            form.appendChild(errorEl);
+          }
+        });
+      });
+    })();
+  </script>
+  <script src="js/roi-calculator.js"></script>
+</body>
+</html>

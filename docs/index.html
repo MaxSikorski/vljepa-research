@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VL-JEPA + SALT — First Public Implementation</title>
+  <meta name="description" content="First public implementation of Apple's SALT (ICLR 2025). Run real ViT inference in your browser via WebAssembly.">
+
+  <!-- Favicon: dark-mode aware -->
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Controls: Nav + Theme Toggle -->
+  <div class="top-controls">
+    <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+  <div class="nav-backdrop" id="navBackdrop"></div>
+  <nav class="nav-menu" id="navMenu">
+    <a href="#hero">Home</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#demo">Live Demo</a>
+    <a href="#training">Training Results</a>
+    <a href="#console">Python Console</a>
+    <div class="nav-divider"></div>
+    <a href="manufacturing.html">Manufacturing</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1: Hero -->
+  <!-- ============================================================ -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-badge">ICLR 2025 · Apple Research</div>
+      <h1>VL-JEPA + SALT</h1>
+      <p>First public implementation of Apple's SALT — Static-teacher Asymmetric Latent Training.
+         Run real ViT inference live in your browser.</p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value" data-target="112" data-suffix="">0</div>
+          <div class="stat-label">Tests Passing</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-target="65" data-suffix="">0</div>
+          <div class="stat-label">Python Files</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-target="33.0" data-suffix="%" data-decimal="1">0</div>
+          <div class="stat-label">SALT k-NN</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-target="0" data-suffix="" data-text="No EMA">—</div>
+          <div class="stat-label">Eliminates EMA</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap">
+        <a href="#demo" class="cta-btn">
+          Run Live Demo
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3v10M8 13l4-4M8 13L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="manufacturing.html" class="cta-btn" style="background:transparent; color:var(--accent); border:1.5px solid var(--accent)">
+          Deploy to Your Factory
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 3h7v7M13 3L6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 2: Architecture -->
+  <!-- ============================================================ -->
+  <section id="architecture">
+    <div class="container">
+      <h2 class="fade-in">How SALT Works</h2>
+      <p class="section-subtitle fade-in">Two-stage training that eliminates EMA — the most complex part of JEPA training.</p>
+
+      <div class="arch-container">
+        <!-- Stage 1 -->
+        <div class="arch-stage fade-in">
+          <h3>
+            <span class="stage-badge stage1">Stage 1</span>
+            V-Pixel Teacher Training
+            <span class="stage-badge no-ema">No EMA</span>
+          </h3>
+          <p style="margin-bottom:24px; color:var(--text-secondary)">Train a ViT encoder with pixel reconstruction (MAE-style). The decoder is discarded after training.</p>
+
+          <svg class="arch-svg" viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Nodes -->
+            <rect class="node-rect" x="10" y="30" width="100" height="60"/>
+            <text x="60" y="55" text-anchor="middle" font-size="12" font-weight="600">Image</text>
+            <text x="60" y="72" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">32×32×3</text>
+
+            <rect class="node-rect" x="140" y="30" width="100" height="60"/>
+            <text x="190" y="55" text-anchor="middle" font-size="12" font-weight="600">Patches</text>
+            <text x="190" y="72" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">16 × 8×8</text>
+
+            <rect class="node-rect" x="270" y="30" width="120" height="60" style="fill:var(--badge-bg)"/>
+            <text x="330" y="55" text-anchor="middle" font-size="12" font-weight="600" fill="var(--badge-text)">ViT Encoder</text>
+            <text x="330" y="72" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">4 layers, 192d</text>
+
+            <rect class="node-rect" x="420" y="30" width="120" height="60"/>
+            <text x="480" y="55" text-anchor="middle" font-size="12" font-weight="600">MAE Decoder</text>
+            <text x="480" y="72" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">2 layers, 96d</text>
+
+            <rect class="node-rect" x="570" y="30" width="100" height="60"/>
+            <text x="620" y="55" text-anchor="middle" font-size="12" font-weight="600">Pixel Loss</text>
+            <text x="620" y="72" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">MSE</text>
+
+            <!-- Arrows -->
+            <line class="flow-line" x1="110" y1="60" x2="140" y2="60" marker-end="url(#arrow)"/>
+            <line class="flow-line" x1="240" y1="60" x2="270" y2="60" marker-end="url(#arrow)"/>
+            <line class="flow-line" x1="390" y1="60" x2="420" y2="60" marker-end="url(#arrow)"/>
+            <line class="flow-line" x1="540" y1="60" x2="570" y2="60" marker-end="url(#arrow)"/>
+
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8" fill="var(--border)"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="arch-stage fade-in">
+          <h3>
+            <span class="stage-badge stage2">Stage 2</span>
+            Frozen-Teacher JEPA
+            <span class="stage-badge no-ema">No EMA</span>
+          </h3>
+          <p style="margin-bottom:24px; color:var(--text-secondary)">Freeze the Stage 1 teacher. Train a student + predictor to predict the teacher's latent representations.</p>
+
+          <svg class="arch-svg" viewBox="0 0 760 180" xmlns="http://www.w3.org/2000/svg">
+            <!-- Teacher path (top) -->
+            <rect class="node-rect" x="10" y="10" width="100" height="50"/>
+            <text x="60" y="32" text-anchor="middle" font-size="12" font-weight="600">Image</text>
+            <text x="60" y="46" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Full view</text>
+
+            <rect class="node-rect" x="150" y="10" width="140" height="50" style="fill:rgba(255,159,10,0.1); stroke:var(--warning)"/>
+            <text x="220" y="32" text-anchor="middle" font-size="12" font-weight="600" fill="var(--warning)">🔒 Frozen Teacher</text>
+            <text x="220" y="46" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">From Stage 1</text>
+
+            <rect class="node-rect" x="330" y="10" width="120" height="50"/>
+            <text x="390" y="32" text-anchor="middle" font-size="12" font-weight="600">Target Latents</text>
+            <text x="390" y="46" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">16 × 192d</text>
+
+            <!-- Student path (bottom) -->
+            <rect class="node-rect" x="10" y="110" width="100" height="50"/>
+            <text x="60" y="132" text-anchor="middle" font-size="12" font-weight="600">Image</text>
+            <text x="60" y="146" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Masked view</text>
+
+            <rect class="node-rect" x="150" y="110" width="140" height="50" style="fill:var(--badge-bg)"/>
+            <text x="220" y="132" text-anchor="middle" font-size="12" font-weight="600" fill="var(--badge-text)">Student Encoder</text>
+            <text x="220" y="146" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Trainable</text>
+
+            <rect class="node-rect" x="330" y="110" width="120" height="50" style="fill:var(--badge-bg)"/>
+            <text x="390" y="132" text-anchor="middle" font-size="12" font-weight="600" fill="var(--badge-text)">Predictor</text>
+            <text x="390" y="146" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Trainable</text>
+
+            <!-- L1 Loss -->
+            <rect class="node-rect" x="500" y="55" width="120" height="50" style="fill:rgba(52,199,89,0.1); stroke:var(--success)"/>
+            <text x="560" y="77" text-anchor="middle" font-size="12" font-weight="600" fill="var(--success)">L1 Loss</text>
+            <text x="560" y="91" text-anchor="middle" font-size="10" fill="var(--text-tertiary)">Latent space</text>
+
+            <!-- Arrows -->
+            <line class="flow-line" x1="110" y1="35" x2="150" y2="35"/>
+            <line class="flow-line" x1="290" y1="35" x2="330" y2="35"/>
+            <line class="flow-line" x1="450" y1="35" x2="500" y2="65"/>
+
+            <line class="flow-line" x1="110" y1="135" x2="150" y2="135"/>
+            <line class="flow-line" x1="290" y1="135" x2="330" y2="135"/>
+            <line class="flow-line" x1="450" y1="135" x2="500" y2="95"/>
+
+            <use href="#arrow"/>
+          </svg>
+
+          <p style="margin-top:16px; font-size:14px; color:var(--text-tertiary)">
+            <strong style="color:var(--warning)">Key insight:</strong>
+            "Weak teacher, strong student" — a small teacher can train a larger student.
+            Student loss predicts downstream accuracy (R² = 0.951).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 3: Live Demo -->
+  <!-- ============================================================ -->
+  <section id="demo">
+    <div class="container">
+      <h2 class="fade-in">Live Demo</h2>
+      <p class="section-subtitle fade-in">Run real SALT ViT inference in your browser via WebAssembly. No server needed.</p>
+
+      <div class="demo-grid">
+        <!-- Input panel -->
+        <div class="demo-panel fade-in">
+          <h3>Input</h3>
+          <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px">Select a CIFAR-10 sample or use your camera</p>
+
+          <div class="sample-grid" id="sampleGrid">
+            <!-- Populated by JS -->
+          </div>
+
+          <div id="selectedPreview" style="text-align:center; margin:16px 0; display:none">
+            <div class="patch-grid-container">
+              <canvas id="previewCanvas" width="128" height="128" style="border-radius:8px; image-rendering:pixelated"></canvas>
+              <div class="patch-grid-overlay" id="patchOverlay">
+                <!-- 4x4 grid cells -->
+              </div>
+            </div>
+            <div class="sample-label" id="selectedLabel"></div>
+          </div>
+
+          <button class="run-btn" id="runBtn" disabled>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 2l10 6-10 6V2z" fill="currentColor"/>
+            </svg>
+            Run Inference
+          </button>
+          <button class="camera-btn" id="cameraBtn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="vertical-align:middle; margin-right:4px">
+              <circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M2 6h2l1.5-2h5L12 6h2v8H2V6z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+            Use Camera
+          </button>
+          <video id="cameraVideo" style="display:none; width:100%; border-radius:8px; margin-top:8px" autoplay playsinline></video>
+        </div>
+
+        <!-- Results panel -->
+        <div class="demo-panel fade-in">
+          <h3>Results</h3>
+
+          <div id="demoResults" class="results-placeholder">
+            Select an image and tap "Run Inference"
+          </div>
+
+          <div id="demoResultsContent" style="display:none">
+            <div class="result-item">
+              <span class="result-label">Model</span>
+              <span class="result-value">SALT ViT-Tiny (ONNX)</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Backend</span>
+              <span class="result-value">ONNX Runtime Web (WASM)</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Inference Time</span>
+              <span class="result-value highlight" id="inferenceTime">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Patch Embeddings</span>
+              <span class="result-value" id="embeddingShape">—</span>
+            </div>
+
+            <h3 style="margin-top:24px">Embedding Visualization</h3>
+            <div class="sparkline-container" id="sparkline"></div>
+
+            <h3 style="margin-top:16px">k-NN Matches (Top 5)</h3>
+            <div id="knnResults"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 4: Training Results -->
+  <!-- ============================================================ -->
+  <section id="training">
+    <div class="container">
+      <h2 class="fade-in">Training Results</h2>
+      <p class="section-subtitle fade-in">SALT outperforms I-JEPA while eliminating EMA entirely.</p>
+
+      <!-- Loss curves chart -->
+      <div class="chart-container fade-in">
+        <h3>Loss Curves — SALT Two-Stage Training</h3>
+        <div class="chart-wrapper">
+          <canvas id="lossChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Comparison bars -->
+      <div class="chart-container fade-in">
+        <h3>SALT vs I-JEPA — Head-to-Head</h3>
+        <div class="bar-chart" id="comparisonBars">
+          <div>
+            <div class="bar-label" style="font-weight:600; margin-bottom:8px">k-NN Accuracy</div>
+            <div class="bar-row">
+              <span class="bar-label">SALT</span>
+              <div class="bar-track"><div class="bar-fill salt" id="barSaltKnn" style="width:0%"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">I-JEPA</span>
+              <div class="bar-track"><div class="bar-fill ijepa" id="barIjepaKnn" style="width:0%"></div></div>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <div class="bar-label" style="font-weight:600; margin-bottom:8px">Linear Probe Accuracy</div>
+            <div class="bar-row">
+              <span class="bar-label">SALT</span>
+              <div class="bar-track"><div class="bar-fill salt" id="barSaltProbe" style="width:0%"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">I-JEPA</span>
+              <div class="bar-track"><div class="bar-fill ijepa" id="barIjepaProbe" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison table -->
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>SALT</th>
+              <th>I-JEPA</th>
+              <th>Winner</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonTableBody">
+            <tr>
+              <td>k-NN Accuracy</td>
+              <td class="winner" id="tableSaltKnn">—</td>
+              <td id="tableIjepaKnn">—</td>
+              <td class="winner">SALT</td>
+            </tr>
+            <tr>
+              <td>Linear Probe</td>
+              <td class="winner" id="tableSaltProbe">—</td>
+              <td id="tableIjepaProbe">—</td>
+              <td class="winner">SALT</td>
+            </tr>
+            <tr>
+              <td>Has EMA?</td>
+              <td class="winner">No</td>
+              <td>Yes</td>
+              <td class="winner">SALT</td>
+            </tr>
+            <tr>
+              <td>Training Stages</td>
+              <td>2 (decoupled)</td>
+              <td>1 (joint)</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 5: Python Console -->
+  <!-- ============================================================ -->
+  <section id="console">
+    <div class="container">
+      <h2 class="fade-in">Python Console</h2>
+      <p class="section-subtitle fade-in">Run numpy-based SALT code live in your browser via Pyodide (Python compiled to WebAssembly).</p>
+
+      <div class="terminal fade-in">
+        <div class="terminal-header">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+          <div class="terminal-title">Python 3.11 (Pyodide WASM)</div>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div class="terminal-output" id="terminalOutput"></div>
+          <div class="terminal-input-line">
+            <span class="terminal-prompt">&gt;&gt;&gt;</span>
+            <input type="text" class="terminal-input" id="terminalInput" placeholder="Loading Pyodide..." disabled autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+
+      <div class="command-chips fade-in">
+        <button class="command-chip" data-cmd="import numpy as np; print(f'numpy {np.__version__} loaded')">Import NumPy</button>
+        <button class="command-chip" data-cmd="pred = np.random.randn(16, 192); target = np.random.randn(16, 192); l1 = np.abs(pred - target).mean(); print(f'L1 loss: {l1:.4f}')">Compute L1 Loss</button>
+        <button class="command-chip" data-cmd="feats = np.random.randn(100, 192); feats = feats / np.linalg.norm(feats, axis=1, keepdims=True); sim = feats @ feats.T; print(f'Cosine sim matrix: {sim.shape}, mean: {sim.mean():.4f}')">Cosine Similarity</button>
+        <button class="command-chip" data-cmd="config = {'img_size': 32, 'patch_size': 8, 'embed_dim': 192, 'depth': 4, 'num_heads': 3, 'num_patches': 16, 'method': 'SALT (no EMA)'}; [print(f'  {k}: {v}') for k, v in config.items()]">Show Config</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 6: Contact -->
+  <!-- ============================================================ -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <h2 class="fade-in">Get in Touch</h2>
+      <p style="color:var(--text-secondary); max-width:500px; margin:0 auto 40px">
+        Interested in edge AI for manufacturing, robotics, or video understanding? Let's talk.
+      </p>
+      <form class="contact-form" action="https://formspree.io/f/xwvrproj" method="POST">
+        <div class="form-group">
+          <label for="contact-name">Name</label>
+          <input type="text" id="contact-name" name="name" required placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label for="contact-email">Email</label>
+          <input type="email" id="contact-email" name="email" required placeholder="you@company.com">
+        </div>
+        <div class="form-group">
+          <label for="contact-message">Message</label>
+          <textarea id="contact-message" name="message" required placeholder="Tell me about your project or question..."></textarea>
+        </div>
+        <button type="submit">Send Message</button>
+        <p class="form-note">Your message goes directly to my inbox. I typically respond within 24 hours.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- FOOTER -->
+  <!-- ============================================================ -->
+  <footer>
+    <div class="container">
+      <p style="color:var(--text-secondary)">Built by Sikorski AI Research Lab · March 2026</p>
+      <div class="footer-links">
+        <a href="https://github.com/MaxSikorski/vljepa-research" target="_blank">GitHub Repository</a>
+        <a href="https://arxiv.org/abs/2509.24317" target="_blank">SALT Paper (ICLR 2025)</a>
+        <a href="https://arxiv.org/abs/2512.10942" target="_blank">VL-JEPA Paper</a>
+        <a href="https://arxiv.org/abs/2301.08243" target="_blank">I-JEPA (CVPR 2023)</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts (loaded at end for performance) -->
+  <script src="js/app.js"></script>
+  <script src="js/onnx-demo.js"></script>
+  <script src="js/camera-demo.js"></script>
+  <script src="js/training-charts.js"></script>
+  <script src="js/pyodide-console.js"></script>
+</body>
+</html>
