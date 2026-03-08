@@ -68,3 +68,15 @@ references/jepa/
 references/vjepa2/
 references/eb_jepa/
 references/vljepa-community/
+
+# Private — never commit to public repo
+research/
+templates/
+documentation/business-plan.md
+documentation/sbir-phase1-proposal.md
+documentation/funding-opportunities.md
+documentation/competitive-landscape-2026.md
+documentation/cloud-credits-guide.md
+documentation/blog-salt-manufacturing.md
+documentation/blog-vljepa-explained.md
+documentation/implementation-details-from-repos.md
