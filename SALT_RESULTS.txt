@@ -1,0 +1,46 @@
+======================================================================
+SALT End-to-End Smoke Test (Apple, ICLR 2025)
+Static-teacher Asymmetric Latent Training
+======================================================================
+
+[Step 1] CIFAR-10 — Train: 50000, Test: 10000
+
+[Step 2] SALT Stage 1: Training MAE Teacher...
+  (NO EMA — pixel reconstruction with multi-block masking)
+  Stage 1 Epoch 1 — avg loss: 0.8406
+  Stage 1 Epoch 2 — avg loss: 0.7609
+  Stage 1 done in 511.6s
+  Pixel loss trend: 0.8406 → 0.7609
+
+[Step 3] SALT Stage 2: Training Student with Frozen Teacher...
+  (NO EMA — frozen teacher, L1 latent prediction)
+  Stage 2 Epoch 1 — avg loss: 0.5093
+  Stage 2 Epoch 2 — avg loss: 0.4259
+  Stage 2 done in 957.7s
+  Latent loss trend: 0.5093 → 0.4259
+
+[Step 4] Evaluating SALT student encoder...
+  SALT k-NN (k=20): 0.2920
+  SALT linear probe: 0.3780
+
+[Step 5] I-JEPA baseline (same compute budget)...
+
+======================================================================
+SALT vs I-JEPA COMPARISON
+======================================================================
+  Metric                          SALT     I-JEPA     Winner
+  ------------------------- ---------- ---------- ----------
+  k-NN accuracy                0.2920    0.2620       SALT
+  Linear probe accuracy        0.3780    0.3520       SALT
+  Training time (s)            1469.3     865.6     I-JEPA
+  Has EMA?                          No        Yes
+  Stage 1 time (s)              511.6        N/A
+  Stage 2 time (s)              957.7        N/A
+
+  Stage 1 loss decreasing: YES
+  Stage 2 loss decreasing: YES
+  SALT above random (10%): YES
+  Total time: 2375.1s
+
+  Status: ALL CHECKS PASSED
+======================================================================
